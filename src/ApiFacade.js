@@ -1,4 +1,4 @@
-const URL = "http://localhost:8080/securitystarter";
+const URL = "http://localhost:8080/sem-projekt/";
 function handleHttpErrors(res) {
   if (!res.ok) {
     return Promise.reject({ status: res.status, fullError: res.json() });
@@ -6,9 +6,25 @@ function handleHttpErrors(res) {
   return res.json();
 }
 
-class ApiFacade {
+function ApiFacade() {
 
-  makeOptions(method, addToken, body) {
+
+  const login = (user, password) => {
+    const options = makeOptions("POST", true, {
+      username: user,
+      password: password
+    });
+
+
+    return fetch(URL + "/api/login", options)
+      .then(handleHttpErrors)
+      .then(res => {
+        setToken(res.token);
+      });
+  };
+
+
+  const makeOptions = (method, addToken, body) => {
     var opts = {
       method: method,
       headers: {
@@ -16,8 +32,8 @@ class ApiFacade {
         Accept: "application/json"
       }
     };
-    if (addToken && this.loggedIn()) {
-      opts.headers["x-access-token"] = this.getToken();
+    if (addToken && loggedIn()) {
+      opts.headers["x-access-token"] = getToken();
     }
     if (body) {
       opts.body = JSON.stringify(body);
@@ -25,44 +41,79 @@ class ApiFacade {
     return opts;
   }
 
-  setToken = token => {
+  const getTokenInfo = () => {
+    let jwt = localStorage.getItem("jwtToken");
+    let jwtData = jwt.split(".")[1];
+    let decodedJwtJsonData = window.atob(jwtData);
+    let decodedJwtData = JSON.parse(decodedJwtJsonData);
+    return decodedJwtData;
+  };
+
+  const setToken = token => {
     localStorage.setItem("jwtToken", token);
   };
-  getToken = () => {
+  const getToken = () => {
     return localStorage.getItem("jwtToken");
   };
-  loggedIn = () => {
-    const loggedIn = this.getToken() != null;
+  const loggedIn = () => {
+    const loggedIn = getToken() != null;
     return loggedIn;
   };
-  logout = () => {
+  const logout = () => {
     localStorage.removeItem("jwtToken");
   };
 
-  login = (user, pass) => {
-    const options = this.makeOptions("POST", true, {
-      username: user,
-      password: pass
-    });
 
-    return fetch(URL + "/api/login", options)
-      .then(handleHttpErrors)
-      .then(res => {
-        this.setToken(res.token);
-      });
-  };
-
-  fetchData = () => {
+  const fetchData = () => {
     
-    const options = this.makeOptions("GET", true); //True add's the token
+    const options = makeOptions("GET", true); //True add's the token
     return fetch(URL + options).then(handleHttpErrors);
   };
 
+  const fetchFlightInfo = (
+        outboundDate,
+        cabinClass,
+        origin,
+        destination,
+        adults,
+        inboundDate,
+        children,
+        infants
+) => {
+    const options = makeOptions("GET", true);
+    return fetch(
+      URL +
+      outboundDate +
+      "/" +
+      inboundDate +
+      "/" +
+      cabinClass +
+      "/" +
+      origin +
+      "/" +
+      destination +
+      "/" +
+      adults +
+      "/" +
+      children +
+      "/" +
+      infants,
+      options
+    ).then(handleHttpErrors);
+};
 
-  fetchPersons = () => {
-    const options = this.makeOptions("GET", false); //True add's the token
-    return fetch(URL + "/api/swapi/all", options).then(handleHttpErrors)
-  }
+return {
+  makeOptions,
+  setToken,
+  getToken,
+  loggedIn,
+  login,
+  logout,
+  fetchData,
+  getTokenInfo,
+  fetchFlightInfo
+};
 }
-const facade = new ApiFacade();
+
+const facade = ApiFacade();
 export default facade;
