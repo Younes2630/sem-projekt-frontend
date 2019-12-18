@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from "react";
-import {  BrowserRouter as Router, Route, NavLink } from 'react-router-dom';
+import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
 import "./App.css";
 import facade from "./ApiFacade";
-
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const logout = () => {
     facade.logout();
     setLoggedIn(false);
-    window.history.pushState("/")
-
-    
+    window.history.pushState("/");
   };
 
   const login = (user, password) => {
@@ -19,75 +16,72 @@ function App() {
       .login(user, password)
       .then(res => setLoggedIn(true))
       .catch(err => console.log("Incorrect username or password"));
-      window.history.pushState("/")
-    };
-
+    window.history.pushState("/");
+  };
 
   return (
     <div>
-<Router>
-<Route>
-<ul className="header">
-      <li>
-        <NavLink exact activeClassName="active" to="/">
-          Home
-        </NavLink>
-      </li>
-      <li>
-        <NavLink activeClassName="active" to="/readme">
-          README
-        </NavLink>
-      </li>
+      <Router>
+        <Route>
+          <ul className="header">
+            <li>
+              <NavLink exact activeClassName="active" to="/">
+                Home
+              </NavLink>
+            </li>
+            <li>
+              <NavLink activeClassName="active" to="/readme">
+                README
+              </NavLink>
+            </li>
 
-      <li>
-        <NavLink activeClassName="active" to="/login">
-          Login
-        </NavLink>
-      </li>
-    </ul>
-    </Route>
-</Router>
+            <li>
+              <NavLink activeClassName="active" to="/login">
+                Login
+              </NavLink>
+            </li>
+          </ul>
+        </Route>
+      </Router>
 
-<ContentPaths/>
+      <ContentPaths />
     </div>
   );
 }
 
-function LogIn({login}){
-    const init = { username: "", password: "" };
-    const[userCreds, setUserCreds] = useState(init);
+function LogIn({ login }) {
+  const init = { username: "", password: "" };
+  const [userCreds, setUserCreds] = useState(init);
 
-    const performLogin = evt => {
-        evt.preventDefault();
-        login(userCreds.username, userCreds.password);
-    };
+  const performLogin = evt => {
+    evt.preventDefault();
+    login(userCreds.username, userCreds.password);
+  };
 
-    const onChange = evt => {
-      setUserCreds({
-        ...userCreds,
-        [evt.target.id]: evt.target.value
-      });
-    };
+  const onChange = evt => {
+    setUserCreds({
+      ...userCreds,
+      [evt.target.id]: evt.target.value
+    });
+  };
 
-    return(
-        <div>
-          <h2>Login</h2>
+  return (
+    <div>
+      <h2>Login</h2>
       <form onChange={onChange}>
-        
         <input placeholder="User Name" id="username" />
         <input placeholder="Password" id="password" />
         <button onClick={performLogin}>Login</button>
-
       </form>
-      </div>
-      );
-    }
-
-
+    </div>
+  );
+}
 
 const ContentPaths = ({ login, props }) => {
   return (
-    <Router>      <Route exact path="/">
+    <Router>
+      {" "}
+      <Route exact path="/">
         <Home />
       </Route>
       <Route path="/login">
@@ -96,9 +90,7 @@ const ContentPaths = ({ login, props }) => {
       {/* <Route path="/readme">
         <Readme />
       </Route> */}
-      </Router>
-
-      
+    </Router>
   );
 };
 
@@ -171,12 +163,9 @@ const SearchFlight = ({ flightinfo }) => {
     outboundDate: "",
     cabinClass: "economy",
     destination: "",
-    arrival: "",
-    adults: "2",
-    inboundDate: "",
-    children: "1",
-    infants: "1"
-});
+    adults: "1",
+    arrival: ""
+  });
   const [listData, setListData] = useState([]);
 
   function handleSearchFlight(event) {
@@ -186,7 +175,6 @@ const SearchFlight = ({ flightinfo }) => {
       [event.target.name]: value
     });
   }
-
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -200,88 +188,59 @@ const SearchFlight = ({ flightinfo }) => {
       .split("-")
       .reverse()
       .join("-");
-    state.inboundDate
-      .split("-")
-      .reverse()
-      .join("-");
     facade
       .fetchFlightInfo(
         state.outboundDate,
         state.cabinClass,
         state.arrival,
         state.destination,
-        state.adults,
-        state.inboundDate,
-        state.children,
-        state.infants
+        state.adults
       )
       .then(res => {
         setListData(res);
       });
-    }
+  }
 
-    return (
-      <div>
-        <form>
-          <input
-            type="text"
-            name="origin"
-            placeholder="Origin"
-            onChange={handleSearchFlight}
-          />
-          <input
-            type="text"
-            name="destination"
-            placeholder="Destination"
-            onChange={handleSearchFlight}
-          />
-          <input
-            type="date"
-            name="outboundDate"
-            onChange={handleSearchFlight}
-            required
-          />
-          <input
-            type="date"
-            name="inboundDate"
-            onChange={handleSearchFlight}
-            required
-          />
-          <input
-            type="number"
-            name="adults"
-            placeholder="1"
-            min="1"
-            size="4"
-            onChange={handleSearchFlight}
-          />
-          <input
-            type="number"
-            name="children"
-            placeholder="1"
-            min="1"
-            size="4"
-            onChange={handleSearchFlight}
-          />
-          <input
-            type="number"
-            name="infants"
-            placeholder="1"
-            min="1"
-            size="4"
-            onChange={handleSearchFlight}
-          />
-          <select name="cabinClass" onChange={handleSearchFlight}>
-            <option value="economy">Economy</option>
-            <option value="premiumeconomy">Premium Economy</option>
-            <option value="business">Business</option>
-            <option value="first">First Class</option>
-          </select>
-          <button onClick={handleSubmit}>Search</button>
-        </form>
-        <div>{FlightData(listData)}</div>
-      </div>
-    );
-  };
+  return (
+    <div>
+      <form>
+        <input
+          type="text"
+          name="arrival"
+          placeholder="Departure"
+          onChange={handleSearchFlight}
+        />
+        <input
+          type="text"
+          name="destination"
+          placeholder="Destination"
+          onChange={handleSearchFlight}
+        />
+        <input
+          type="date"
+          name="outboundDate"
+          onChange={handleSearchFlight}
+          required
+        />
+        <input
+          type="number"
+          name="adults"
+          placeholder="1"
+          min="1"
+          size="4"
+          onChange={handleSearchFlight}
+        />
+        <select name="cabinClass" onChange={handleSearchFlight}>
+          <option value="economy">Economy</option>
+          <option value="premiumeconomy">Premium Economy</option>
+          <option value="business">Business</option>
+          <option value="first">First Class</option>
+        </select>
+        <button onClick={handleSubmit}>Search</button>
+      </form>
+      <div>{FlightData(listData)}</div>
+    </div>
+  );
+};
 
 export default App;

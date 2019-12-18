@@ -7,14 +7,11 @@ function handleHttpErrors(res) {
 }
 
 function ApiFacade() {
-
-
   const login = (user, password) => {
     const options = makeOptions("POST", true, {
       username: user,
       password: password
     });
-
 
     return fetch(URL + "/api/login", options)
       .then(handleHttpErrors)
@@ -22,7 +19,6 @@ function ApiFacade() {
         setToken(res.token);
       });
   };
-
 
   const makeOptions = (method, addToken, body) => {
     var opts = {
@@ -39,7 +35,7 @@ function ApiFacade() {
       opts.body = JSON.stringify(body);
     }
     return opts;
-  }
+  };
 
   const getTokenInfo = () => {
     let jwt = localStorage.getItem("jwtToken");
@@ -63,56 +59,45 @@ function ApiFacade() {
     localStorage.removeItem("jwtToken");
   };
 
-
   const fetchData = () => {
-    
     const options = makeOptions("GET", true); //True add's the token
     return fetch(URL + options).then(handleHttpErrors);
   };
 
   const fetchFlightInfo = (
-        outboundDate,
-        cabinClass,
-        origin,
-        destination,
-        adults,
-        inboundDate,
-        children,
-        infants
-) => {
+    startDate,
+    cabinClass,
+    arrival,
+    destination,
+    adults
+  ) => {
     const options = makeOptions("GET", true);
     return fetch(
       URL +
-      outboundDate +
-      "/" +
-      inboundDate +
-      "/" +
-      cabinClass +
-      "/" +
-      origin +
-      "/" +
-      destination +
-      "/" +
-      adults +
-      "/" +
-      children +
-      "/" +
-      infants,
+        startDate +
+        "/" +
+        cabinClass +
+        "/" +
+        arrival +
+        "/" +
+        destination +
+        "/" +
+        adults,
       options
     ).then(handleHttpErrors);
-};
+  };
 
-return {
-  makeOptions,
-  setToken,
-  getToken,
-  loggedIn,
-  login,
-  logout,
-  fetchData,
-  getTokenInfo,
-  fetchFlightInfo
-};
+  return {
+    makeOptions,
+    setToken,
+    getToken,
+    loggedIn,
+    login,
+    logout,
+    fetchData,
+    getTokenInfo,
+    fetchFlightInfo
+  };
 }
 
 const facade = ApiFacade();
